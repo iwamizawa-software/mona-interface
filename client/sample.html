@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<title>Fake Server Sample</title>
+<style>iframe,textarea{width:720px;height:380px}#text{width:700px}</style>
+</head>
+<body>
+<p id="client">
+<p><select id="template"><option selected="selected">テンプレート</option></select><input type="text" id="text"><input type="button" value="実行" id="send">
+<p><textarea id="code"></textarea>
+<input type="button" id="exec" value="再実行">
+<script src="https://imwamizawa-software.github.io/mona-interface/monafakeserver.js"></script>
+<script>
+document.getElementById('code').value = '!' + function () {
+  var client = document.getElementById('client');
+  client.innerHTML = '';
+  server = new MonaFakeServer({element:client});
+  server.onmessage = function (obj) {
+    this.update(obj);
+  };
+  server.connect(1);
+} + '()';
+(document.getElementById('exec').onclick = function () {
+  eval(document.getElementById('code').value);
+})();
+document.getElementById('template').onchange = function () {
+  document.getElementById('text').value = this.value;
+  this.selectedIndex = 0;
+};
+var template = {
+  '入室' : 'server.update({type:"ENTER",attr:{id:2,type:"mona",name:"名無しさん",ihash:"....AAAAAA"}})',
+  '発言' : 'server.update({type:"COM",attr:{id:2,cmt:"a"}})',
+  '退室' : 'server.update({type:"EXIT",attr:{id:2}})',
+};
+for (var i in template) {
+  var option = document.getElementById('template').appendChild(document.createElement('option'));
+  option.text = i;
+  option.value = template[i];
+}
+document.getElementById('send').onclick = function () {
+  var text = document.getElementById('text');
+  eval(text.value);
+  text.value = '';
+};
+</script>
+</body>
+</html>
