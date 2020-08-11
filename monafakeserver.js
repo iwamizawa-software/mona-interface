@@ -21,11 +21,20 @@ window.MonaFakeServer = window.MonaFakeServer || function (options) {
     }
   }
 
+  var self = this;
   var toClient = function (obj) {
     if (entered)
       client.postMessage(obj, origin);
   };
-  var self = this;
+  var setStatus = function (status) {
+    if (status === !entered) {
+      try {
+        (entered = status) ? (self.onenter && self.onenter()) : (self.onexit && self.onexit());
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  };
   window.addEventListener('message', function (e) {
     if (e.origin === origin && e.source === client) {
       if (e.data.attr && !('id' in e.data.attr))
@@ -35,19 +44,20 @@ window.MonaFakeServer = window.MonaFakeServer || function (options) {
           e.data.attr.ihash = '....myself';
         if (connected) {
           self.update(e.data);
-          entered = true;
+          setStatus(true);
           var children = [];
           for (var id in member)
-            children.push(member[id]);
+            if (id !== myId)
+              children.push(member[id]);
           toClient({type:'ROOM',attr:{},children:children});
           toClient(member[myId]);
           toClient({type:'COUNT',attr:{c:count}});
           return;
         } else {
-          entered = true;
+          setStatus(true);
         }
       } else if (e.data.type === 'EXIT') {
-        entered = false;
+        setStatus(false);
         if (connected)
           return;
       }
