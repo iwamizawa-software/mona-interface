@@ -94,7 +94,7 @@
   var dr2mona = {};
   var monaAttr = function (user) {
     var attr = {
-      id : +dr2mona[user.id] || '1000000',
+      id : dr2mona[user.id],
       ihash : (user.encip || '??????????').slice(0, 10),
       name : user.name
     };
@@ -118,6 +118,10 @@
     if (!(xhr.responseText && (entered || (entered = server.clientStatus()))))
       return;
     var obj = JSON.parse(xhr.responseText);
+    if (obj.users && obj.users[0]) {
+      obj.users['1000000'] = obj.users[0];
+      delete obj.users[0];
+    }
     for (var monaId in obj.users)
       if (!member[monaId]) {
         exit(obj.users[monaId].id);
