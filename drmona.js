@@ -94,7 +94,7 @@
   var dr2mona = {};
   var monaAttr = function (user) {
     var attr = {
-      id : dr2mona[user.id],
+      id : +dr2mona[user.id] || '1000000',
       ihash : (user.encip || '??????????').slice(0, 10),
       name : user.name
     };
@@ -123,6 +123,8 @@
         exit(obj.users[monaId].id);
         dr2mona[obj.users[monaId].id] = monaId;
         member[monaId] = obj.users[monaId];
+        if (!member[monaId].encip)
+          member[monaId].encip = obj.hostip;
         if (myId !== undefined)
           server.update({type:'ENTER',attr:monaAttr(member[monaId])});
       }
